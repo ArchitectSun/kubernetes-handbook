@@ -1,4 +1,4 @@
-# 部署高可用master 集群
+# 部署master节点
 
 kubernetes master 节点包含的组件：
 
@@ -13,11 +13,14 @@ kubernetes master 节点包含的组件：
 
 ~~本文档记录部署一个三个节点的高可用 kubernetes master 集群步骤。（后续创建一个 load balancer 来代理访问 kube-apiserver 的请求）~~
 
-暂时未实现master节点的高可用。
+**注**：
+
+- 暂时未实现master节点的高可用
+- master节点上没有部署flannel网络插件，如果想要在master节点上也能访问ClusterIP，请参考下一节[部署node节点](node-installation.md)中的配置Flanneld部分。
 
 ## TLS 证书文件
 
-pem和token.csv证书文件我们在[TLS证书和秘钥](./01-TLS证书和秘钥.md)这一步中已经创建过了。我们再检查一下。
+以下`pem`证书文件我们在[创建TLS证书和秘钥](create-tls-and-secret-key.md)这一步中已经创建过了，`token.csv`文件在[创建kubeconfig文件](create-kubeconfig.md)的时候创建。我们再检查一下。
 
 ``` bash
 $ ls /etc/kubernetes/ssl
@@ -32,13 +35,11 @@ admin-key.pem  admin.pem  ca-key.pem  ca.pem  kube-proxy-key.pem  kube-proxy.pem
 
 从 [github release 页面](https://github.com/kubernetes/kubernetes/releases) 下载发布版 tarball，解压后再执行下载脚本
 
-``` shell
-$ wget https://github.com/kubernetes/kubernetes/releases/download/v1.6.0/kubernetes.tar.gz
-$ tar -xzvf kubernetes.tar.gz
-...
-$ cd kubernetes
-$ ./cluster/get-kube-binaries.sh
-...
+``` bash
+wget https://github.com/kubernetes/kubernetes/releases/download/v1.6.0/kubernetes.tar.gz
+tar -xzvf kubernetes.tar.gz
+cd kubernetes
+./cluster/get-kube-binaries.sh
 ```
 **方式二**
 
@@ -47,24 +48,23 @@ $ ./cluster/get-kube-binaries.sh
 `server` 的 tarball `kubernetes-server-linux-amd64.tar.gz` 已经包含了 `client`(`kubectl`) 二进制文件，所以不用单独下载`kubernetes-client-linux-amd64.tar.gz`文件；
 
 ``` shell
-$ # wget https://dl.k8s.io/v1.6.0/kubernetes-client-linux-amd64.tar.gz
-$ wget https://dl.k8s.io/v1.6.0/kubernetes-server-linux-amd64.tar.gz
-$ tar -xzvf kubernetes-server-linux-amd64.tar.gz
-...
-$ cd kubernetes
-$ tar -xzvf  kubernetes-src.tar.gz
+# wget https://dl.k8s.io/v1.6.0/kubernetes-client-linux-amd64.tar.gz
+wget https://dl.k8s.io/v1.6.0/kubernetes-server-linux-amd64.tar.gz
+tar -xzvf kubernetes-server-linux-amd64.tar.gz
+cd kubernetes
+tar -xzvf  kubernetes-src.tar.gz
 ```
 将二进制文件拷贝到指定路径
 
 ``` bash
-$ cp -r server/bin/{kube-apiserver,kube-controller-manager,kube-scheduler,kubectl,kube-proxy,kubelet} /usr/local/bin/
+cp -r server/bin/{kube-apiserver,kube-controller-manager,kube-scheduler,kubectl,kube-proxy,kubelet} /usr/local/bin/
 ```
 
 ## 配置和启动 kube-apiserver
 
 **创建 kube-apiserver的service配置文件**
 
-serivce配置文件`/usr/lib/systemd/system/kube-apiserver.service`内容：
+service配置文件`/usr/lib/systemd/system/kube-apiserver.service`内容：
 
 ```ini
 [Unit]
@@ -168,15 +168,15 @@ KUBE_API_ARGS="--authorization-mode=RBAC --runtime-config=rbac.authorization.k8s
 + `--service-cluster-ip-range` 指定 Service Cluster IP 地址段，该地址段不能路由可达；
 + 缺省情况下 kubernetes 对象保存在 etcd `/registry` 路径下，可以通过 `--etcd-prefix` 参数进行调整；
 
-完整 unit 见 [kube-apiserver.service](./systemd/kube-apiserver.service)
+完整 unit 见 [kube-apiserver.service](../systemd/kube-apiserver.service)
 
 **启动kube-apiserver**
 
 ``` bash
-$ systemctl daemon-reload
-$ systemctl enable kube-apiserver
-$ systemctl start kube-apiserver
-$ systemctl status kube-apiserver
+systemctl daemon-reload
+systemctl enable kube-apiserver
+systemctl start kube-apiserver
+systemctl status kube-apiserver
 ```
 
 ## 配置和启动 kube-controller-manager
@@ -186,6 +186,7 @@ $ systemctl status kube-apiserver
 文件路径`/usr/lib/systemd/system/kube-controller-manager.service`
 
 ```ini
+[Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
@@ -233,14 +234,14 @@ KUBE_CONTROLLER_MANAGER_ARGS="--address=127.0.0.1 --service-cluster-ip-range=10.
 
     如果有组件report unhealthy请参考：https://github.com/kubernetes-incubator/bootkube/issues/64
 
-完整 unit 见 [kube-controller-manager.service](./systemd/kube-controller-manager.service)
+完整 unit 见 [kube-controller-manager.service](../systemd/kube-controller-manager.service)
 
 ### 启动 kube-controller-manager
 
 ``` bash
-$ systemctl daemon-reload
-$ systemctl enable kube-controller-manager
-$ systemctl start kube-controller-manager
+systemctl daemon-reload
+systemctl enable kube-controller-manager
+systemctl start kube-controller-manager
 ```
 
 ## 配置和启动 kube-scheduler
@@ -283,14 +284,14 @@ KUBE_SCHEDULER_ARGS="--leader-elect=true --address=127.0.0.1"
 
 + `--address` 值必须为 `127.0.0.1`，因为当前 kube-apiserver 期望 scheduler 和 controller-manager 在同一台机器；
 
-完整 unit 见 [kube-scheduler.service](./systemd/kube-scheduler.service)
+完整 unit 见 [kube-scheduler.service](../systemd/kube-scheduler.service)
 
 ### 启动 kube-scheduler
 
 ``` bash
-$ systemctl daemon-reload
-$ systemctl enable kube-scheduler
-$ systemctl start kube-scheduler
+systemctl daemon-reload
+systemctl enable kube-scheduler
+systemctl start kube-scheduler
 ```
 
 ## 验证 master 节点功能

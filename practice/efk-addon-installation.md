@@ -1,5 +1,7 @@
 # 安装EFK插件
 
+我们通过在每台node上部署一个以DaemonSet方式运行的fluentd来收集每台node上的日志。Fluentd将docker日志目录`/var/lib/docker/containers`和`/var/log`目录挂载到Pod中，然后Pod会在node节点的`/var/log/pods`目录中创建新的目录，可以区别不同的容器日志输出，该目录下有一个日志文件链接到`/var/lib/docker/contianers`目录下的容器日志输出。
+
 官方文件目录：`cluster/addons/fluentd-elasticsearch`
 
 ``` bash
@@ -9,7 +11,7 @@ es-controller.yaml  es-service.yaml  fluentd-es-ds.yaml  kibana-controller.yaml 
 
 同样EFK服务也需要一个`efk-rbac.yaml`文件，配置serviceaccount为`efk`。
 
-已经修改好的 yaml 文件见：[EFK](./manifests/EFK)
+已经修改好的 yaml 文件见：[../manifests/EFK](https://github.com/rootsongjc/kubernetes-handbook/blob/master/manifests/EFK)
 
 
 ## 配置 es-controller.yaml
@@ -94,7 +96,7 @@ elasticsearch-logging   10.254.77.62    <none>        9200/TCP                  
 kibana-logging          10.254.8.113    <none>        5601/TCP                        2m
 ```
 
-kibana Pod 第一次启动时会用**较长时间(10-20分钟)**来优化和 Cache 状态页面，可以 tailf 该 Pod 的日志观察进度：
+kibana Pod 第一次启动时会用较长时间(10-20分钟)来优化和 Cache 状态页面，可以 tailf 该 Pod 的日志观察进度：
 
 ``` bash
 $ kubectl logs kibana-logging-1432287342-0gdng -n kube-system -f
@@ -150,7 +152,7 @@ server.basePath: /api/v1/proxy/namespaces/kube-system/services/kibana-logging
 
 **可能遇到的问题**
 
-如果你在这里发现Create按钮是灰色的无法点击，且Time-filed name中没有选项，fluentd要读取`/var/log/containers/`目录下的log日志，这些日志是从`/var/lib/docker/containers/${CONTAINER_ID}/${CONTAINER_ID}-json.log`链接过来的，查看你的docker配置，`—log-dirver`需要设置为**json-file**格式，默认的可能是**journald**，参考[docker logging]([https://docs.docker.com/engine/admin/logging/overview/#examples](https://docs.docker.com/engine/admin/logging/overview/#examples))。
+如果你在这里发现Create按钮是灰色的无法点击，且Time-filed name中没有选项，fluentd要读取`/var/log/containers/`目录下的log日志，这些日志是从`/var/lib/docker/containers/${CONTAINER_ID}/${CONTAINER_ID}-json.log`链接过来的，查看你的docker配置，`—log-dirver`需要设置为**json-file**格式，默认的可能是**journald**，参考[docker logging](https://docs.docker.com/engine/admin/logging/overview/#examples)。
 
 ![es-setting](../images/es-setting.png)
 

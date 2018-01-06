@@ -1,5 +1,17 @@
 # 创建TLS证书和秘钥
 
+## 前言
+
+执行下列步骤前建议你先阅读以下内容：
+
+- [管理集群中的TLS](../guide/managing-tls-in-a-cluster.md)：教您如何创建TLS证书
+- [kubelet的认证授权](../guide/kubelet-authentication-authorization.md)：向您描述如何通过认证授权来访问 kubelet 的 HTTPS 端点。
+- [TLS bootstrap](../guide/tls-bootstrapping.md)：介绍如何为 kubelet 设置 TLS 客户端证书引导（bootstrap）。
+
+**注意**：这一步是在安装配置kubernetes的所有步骤中最容易出错也最难于排查问题的一步，而这却刚好是第一步，万事开头难，不要因为这点困难就望而却步。
+
+**如果您足够有信心在完全不了解自己在做什么的情况下能够成功地完成了这一步的配置，那么您可以尽管跳过上面的几篇文章直接进行下面的操作。**
+
 `kubernetes` 系统的各组件需要使用 `TLS` 证书对通信进行加密，本文档使用 `CloudFlare` 的 PKI 工具集 [cfssl](https://github.com/cloudflare/cfssl) 来生成 Certificate Authority (CA) 和其它证书；
 
 **生成的 CA 证书和秘钥文件如下：**
@@ -20,36 +32,37 @@
 + kubelet：使用 ca.pem；
 + kube-proxy：使用 ca.pem、kube-proxy-key.pem、kube-proxy.pem；
 + kubectl：使用 ca.pem、admin-key.pem、admin.pem；
++ kube-controller-manager：使用 ca-key.pem、ca.pem
 
-`kube-controller`、`kube-scheduler` 当前需要和 `kube-apiserver` 部署在同一台机器上且使用非安全端口通信，故不需要证书。
+**注意：以下操作都在 master 节点即 172.20.0.113 这台主机上执行，证书只需要创建一次即可，以后在向集群中添加新节点时只要将 /etc/kubernetes/ 目录下的证书拷贝到新节点上即可。**
 
 ## 安装 `CFSSL`
 
 **方式一：直接使用二进制源码包安装**
 
 ``` bash
-$ wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
-$ chmod +x cfssl_linux-amd64
-$ sudo mv cfssl_linux-amd64 /root/local/bin/cfssl
+wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+chmod +x cfssl_linux-amd64
+mv cfssl_linux-amd64 /usr/local/bin/cfssl
 
-$ wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-$ chmod +x cfssljson_linux-amd64
-$ sudo mv cfssljson_linux-amd64 /root/local/bin/cfssljson
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+chmod +x cfssljson_linux-amd64
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 
-$ wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
-$ chmod +x cfssl-certinfo_linux-amd64
-$ sudo mv cfssl-certinfo_linux-amd64 /root/local/bin/cfssl-certinfo
+wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
+chmod +x cfssl-certinfo_linux-amd64
+mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
 
-$ export PATH=/root/local/bin:$PATH
+export PATH=/usr/local/bin:$PATH
 ```
 
 **方式二：使用go命令安装**
 
 我们的系统中安装了Go1.7.5，使用以下命令安装更快捷：
 
-```
-$go get -u github.com/cloudflare/cfssl/cmd/...
-$echo $GOPATH
+```bash
+$ go get -u github.com/cloudflare/cfssl/cmd/...
+$ echo $GOPATH
 /usr/local
 $ls /usr/local/bin/cfssl*
 cfssl cfssl-bundle cfssl-certinfo cfssljson cfssl-newkey cfssl-scan
@@ -64,11 +77,13 @@ cfssl cfssl-bundle cfssl-certinfo cfssljson cfssl-newkey cfssl-scan
 **创建 CA 配置文件**
 
 ``` bash
-$ mkdir /root/ssl
-$ cd /root/ssl
-$ cfssl print-defaults config > config.json
-$ cfssl print-defaults csr > csr.json
-$ cat ca-config.json
+mkdir /root/ssl
+cd /root/ssl
+cfssl print-defaults config > config.json
+cfssl print-defaults csr > csr.json
+# 根据config.json文件的格式创建如下的ca-config.json文件
+# 过期时间设置成了 87600h
+cat > ca-config.json <<EOF
 {
   "signing": {
     "default": {
@@ -87,6 +102,7 @@ $ cat ca-config.json
     }
   }
 }
+EOF
 ```
 字段说明
 
@@ -97,8 +113,9 @@ $ cat ca-config.json
 
 **创建 CA 证书签名请求**
 
-``` bash
-$ cat ca-csr.json
+创建 `ca-csr.json`  文件，内容如下：
+
+``` json
 {
   "CN": "kubernetes",
   "key": {
@@ -130,10 +147,9 @@ ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem
 
 ## 创建 kubernetes 证书
 
-创建 kubernetes 证书签名请求
+创建 kubernetes 证书签名请求文件 `kubernetes-csr.json`：
 
-``` bash
-$ cat kubernetes-csr.json
+``` json
 {
     "CN": "kubernetes",
     "hosts": [
@@ -165,7 +181,8 @@ $ cat kubernetes-csr.json
 }
 ```
 
-+ 如果 hosts 字段不为空则需要指定授权使用该证书的 **IP 或域名列表**，由于该证书后续被 `etcd` 集群和 `kubernetes master` 集群使用，所以上面分别指定了 `etcd` 集群、`kubernetes master` 集群的主机 IP 和 **`kubernetes` 服务的服务 IP**（一般是 `kue-apiserver` 指定的 `service-cluster-ip-range` 网段的第一个IP，如 10.254.0.1。
++ 如果 hosts 字段不为空则需要指定授权使用该证书的 **IP 或域名列表**，由于该证书后续被 `etcd` 集群和 `kubernetes master` 集群使用，所以上面分别指定了 `etcd` 集群、`kubernetes master` 集群的主机 IP 和 **`kubernetes` 服务的服务 IP**（一般是 `kube-apiserver` 指定的 `service-cluster-ip-range` 网段的第一个IP，如 10.254.0.1）。
++ 这是最小化安装的kubernetes集群，包括一个私有镜像仓库，三个节点的kubernetes集群，以上物理节点的IP也可以更换为主机名。
 
 **生成 kubernetes 证书和私钥**
 
@@ -178,15 +195,14 @@ kubernetes.csr  kubernetes-csr.json  kubernetes-key.pem  kubernetes.pem
 或者直接在命令行上指定相关参数：
 
 ``` bash
-$ echo '{"CN":"kubernetes","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes -hostname="127.0.0.1,172.20.0.112,172.20.0.113,172.20.0.114,172.20.0.115,kubernetes,kubernetes.default" - | cfssljson -bare kubernetes
+echo '{"CN":"kubernetes","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes -hostname="127.0.0.1,172.20.0.112,172.20.0.113,172.20.0.114,172.20.0.115,kubernetes,kubernetes.default" - | cfssljson -bare kubernetes
 ```
 
 ## 创建 admin 证书
 
-创建 admin 证书签名请求
+创建 admin 证书签名请求文件 `admin-csr.json`：
 
-``` bash
-$ cat admin-csr.json
+``` json
 {
   "CN": "admin",
   "hosts": [],
@@ -220,10 +236,9 @@ admin.csr  admin-csr.json  admin-key.pem  admin.pem
 
 ## 创建 kube-proxy 证书
 
-创建 kube-proxy 证书签名请求
+创建 kube-proxy 证书签名请求文件 `kube-proxy-csr.json`：
 
-``` bash
-$ cat kube-proxy-csr.json
+``` json
 {
   "CN": "system:kube-proxy",
   "hosts": [],
@@ -352,8 +367,8 @@ $ cfssl-certinfo -cert kubernetes.pem
 将生成的证书和秘钥文件（后缀名为`.pem`）拷贝到所有机器的 `/etc/kubernetes/ssl` 目录下备用；
 
 ``` bash
-$ sudo mkdir -p /etc/kubernetes/ssl
-$ sudo cp *.pem /etc/kubernetes/ssl
+mkdir -p /etc/kubernetes/ssl
+cp *.pem /etc/kubernetes/ssl
 ```
 
 ## 参考
@@ -362,3 +377,4 @@ $ sudo cp *.pem /etc/kubernetes/ssl
 + [Setting up a Certificate Authority and Creating TLS Certificates](https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/02-certificate-authority.md)
 + [Client Certificates V/s Server Certificates](https://blogs.msdn.microsoft.com/kaushal/2012/02/17/client-certificates-vs-server-certificates/)
 + [数字证书及 CA 的扫盲介绍](http://blog.jobbole.com/104919/)
++ [TLS bootstrap 引导程序](../guide/tls-bootstrapping.md)

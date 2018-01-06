@@ -10,7 +10,7 @@ Kubernetes设计理念和功能其实就是一个类似Linux的分层架构，�
 
 ![分层架构示意图](../images/kubernetes-layers-arch.jpg)
 
-* 核心层：Kubernetes最核心的功能，对外提供API构建高层的应用，最内提供插件式应用执行环境
+* 核心层：Kubernetes最核心的功能，对外提供API构建高层的应用，对内提供插件式应用执行环境
 * 应用层：部署（无状态应用、有状态应用、批处理任务、集群应用等）和路由（服务发现、DNS解析等）
 * 管理层：系统度量（如基础设施、容器和网络的度量），自动化（如自动扩展、动态Provision等）以及策略管理（RBAC、Quota、PSP、NetworkPolicy等）
 * 接口层：kubectl命令行工具、客户端SDK以及集群联邦
@@ -54,7 +54,7 @@ Kubernetes有很多技术概念，同时对应很多API对象，最重要的也�
 
 Pod是Kubernetes集群中所有业务类型的基础，可以看作运行在K8集群中的小机器人，不同类型的业务就需要不同类型的小机器人去执行。目前Kubernetes中的业务主要可以分为长期伺服型（long-running）、批处理型（batch）、节点后台支撑型（node-daemon）和有状态应用型（stateful application）；分别对应的小机器人控制器为Deployment、Job、DaemonSet和PetSet，本文后面会一一介绍。
 
-### 复制控制器（Replication Controller，RC）
+### 副本控制器（Replication Controller，RC）
 
 RC是Kubernetes集群中最早的保证Pod高可用的API对象。通过监控运行中的Pod来保证集群中运行指定数目的Pod副本。指定的数目可以是多个也可以是1个；少于指定数目，RC就会启动运行新的Pod副本；多于指定数目，RC就会杀死多余的Pod副本。即使在指定数目为1的情况下，通过RC运行Pod也比直接运行Pod更明智，因为RC也可以发挥它高可用的能力，保证永远有1个Pod在运行。RC是Kubernetes较早期的技术概念，只适用于长期伺服型的业务类型，比如控制小机器人提供高可用的Web服务。
 
@@ -62,7 +62,7 @@ RC是Kubernetes集群中最早的保证Pod高可用的API对象。通过监控�
 
 RS是新一代RC，提供同样的高可用能力，区别主要在于RS后来居上，能支持更多种类的匹配模式。副本集对象一般不单独使用，而是作为Deployment的理想状态参数使用。
 
-### 部署\(Deployment\)
+### 部署（Deployment）
 
 部署表示用户对Kubernetes集群的一次更新操作。部署是一个比RS应用模式更广的API对象，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。滚动升级一个服务，实际是创建一个新的RS，然后逐渐将新RS中副本数增加到理想状态，将旧RS中的副本数减小到0的复合操作；这样一个复合操作用一个RS是不太好描述的，所以用一个更通用的Deployment来描述。以Kubernetes的发展方向，未来对所有长期伺服型的的业务的管理，都会通过Deployment来管理。
 
@@ -114,9 +114,9 @@ Secret是用来保存和传递密码、密钥、认证凭证这些敏感信息�
 
 顾名思义，用户帐户为人提供账户标识，而服务账户为计算机进程和Kubernetes集群中运行的Pod提供账户标识。用户帐户和服务帐户的一个区别是作用范围；用户帐户对应的是人的身份，人的身份与服务的namespace无关，所以用户账户是跨namespace的；而服务帐户对应的是一个运行中程序的身份，与特定namespace是相关的。
 
-### 名字空间（Namespace）
+### 命名空间（Namespace）
 
-名字空间为Kubernetes集群提供虚拟的隔离作用，Kubernetes集群初始有两个名字空间，分别是默认名字空间default和系统名字空间kube-system，除此以外，管理员可以可以创建新的名字空间满足需要。
+命名空间为Kubernetes集群提供虚拟的隔离作用，Kubernetes集群初始有两个命名空间，分别是默认命名空间default和系统命名空间kube-system，除此以外，管理员可以可以创建新的命名空间满足需要。
 
 ### RBAC访问授权
 
@@ -128,5 +128,5 @@ Kubernetes在1.3版本中发布了alpha版的基于角色的访问控制（Role-
 
 按照分布式系统一致性算法Paxos发明人计算机科学家[Leslie Lamport](http://research.microsoft.com/users/lamport/pubs/pubs.html)的理念，一个分布式系统有两类特性：安全性Safety和活性Liveness。安全性保证系统的稳定，保证系统不会崩溃，不会出现业务错误，不会做坏事，是严格约束的；活性使得系统可以提供功能，提高性能，增加易用性，让系统可以在用户“看到的时间内”做些好事，是尽力而为的。Kubernetes系统的设计理念正好与Lamport安全性与活性的理念不谋而合，也正是因为Kubernetes在引入功能和技术的时候，非常好地划分了安全性和活性，才可以让Kubernetes能有这么快版本迭代，快速引入像RBAC、Federation和PetSet这种新功能。
 
-\[1\] [http://www.infoq.com/cn/articles/kubernetes-and-cloud-native-applications-part01](http://www.infoq.com/cn/articles/kubernetes-and-cloud-native-applications-part01)
+原文地址：[《Kubernetes与云原生应用》系列之Kubernetes的系统架构与设计理念](http://www.infoq.com/cn/articles/kubernetes-and-cloud-native-applications-part01)
 

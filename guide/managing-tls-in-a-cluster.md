@@ -1,6 +1,6 @@
 # 管理集群中的TLS
 
-在本书的最佳实践部分，我们在CentOS上部署了kuberentes集群，其中最开始有重要的一步就是创建TLS认证的，查看[创建TLS证书和秘钥](../practice/create-tls-and-secret-key.md)。很多人在进行到这一步是都会遇到各种各样千奇百怪的问题，这一步是创建集群的基础，我们有必要详细了解一下背后的流程和原理。
+在本书的最佳实践部分，我们在CentOS上部署了kuberentes集群，其中最开始又重要的一步就是创建TLS认证的，查看[创建TLS证书和秘钥](../practice/create-tls-and-secret-key.md)。很多人在进行到这一步是都会遇到各种各样千奇百怪的问题，这一步是创建集群的基础，我们有必要详细了解一下背后的流程和原理。
 
 ## 概览
 
@@ -40,7 +40,7 @@ $ cat <<EOF | cfssl genkey - | cfssljson -bare server
 EOF
 ```
 
- `172.168.0.24` 是service的cluster IP，`my-svc.my-namespace.svc.cluster.local` 是service的DNS名称， `10.0.34.2` 是Pod的IP， `my-pod.my-namespace.pod.cluster.local` 是pode的DNS名称，你可以看到以下输出：
+ `172.168.0.24` 是 service 的 cluster IP，`my-svc.my-namespace.svc.cluster.local` 是 service 的 DNS 名称， `10.0.34.2` 是 Pod 的 IP， `my-pod.my-namespace.pod.cluster.local` 是pod 的 DNS 名称，你可以看到以下输出：
 
 ```
 2017/03/21 06:48:17 [INFO] generate received request
@@ -108,7 +108,7 @@ NAME                  AGE       REQUESTOR               CONDITION
 my-svc.my-namespace   10m       yourname@example.com    Approved,Issued
 ```
 
-你可以通过运行以下命令下载颁发的证书并将其保存到`server.crt`文件：
+你可以通过运行以下命令下载颁发的证书并将其保存到`server.crt`文件中：
 
 ```bash
 $ kubectl get csr my-svc.my-namespace -o jsonpath='{.status.certificate}' \
@@ -117,6 +117,17 @@ $ kubectl get csr my-svc.my-namespace -o jsonpath='{.status.certificate}' \
 
 现在你可以用`server.crt`和`server-key.pem`来做为keypair来启动HTTPS server。
 
+## 批准证书签名请求
+
+Kubernetes 管理员（具有适当权限）可以使用 `kubectl certificate approve` 和`kubectl certificate deny` 命令手动批准（或拒绝）证书签名请求。但是，如果您打算大量使用此 API，则可以考虑编写自动化的证书控制器。
+
+如果上述机器或人类使用 kubectl，批准者的作用是验证 CSR 满足如下两个要求：
+
+1. CSR 的主体控制用于签署 CSR 的私钥。这解决了伪装成授权主体的第三方的威胁。在上述示例中，此步骤将验证该 pod 控制了用于生成 CSR 的私钥。
+2. CSR 的主体被授权在请求的上下文中执行。这解决了我们加入群集的我们不期望的主体的威胁。在上述示例中，此步骤将是验证该 pod 是否被允许加入到所请求的服务中。
+
+当且仅当满足这两个要求时，审批者应该批准 CSR，否则拒绝 CSR。
+
 ## 给集群管理员的一个建议
 
-本教程假设将signer设置为服务证书API。Kubernetes controller manager提供了一个signer的默认实现。 要启用它，请将`--cluster-signature-cert-file`和`—cluster-signing-key-file`参数传递给controller manager，并配置具有证书颁发机构的密钥对的路径。
+本教程假设将signer设置为服务证书API。Kubernetes controller manager提供了一个signer的默认实现。 要启用它，请将`--cluster-signing-cert-file`和`--cluster-signing-key-file`参数传递给controller manager，并配置具有证书颁发机构的密钥对的路径。

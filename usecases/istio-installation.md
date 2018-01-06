@@ -1,4 +1,4 @@
-# 安装istio
+# 安装并试用Istio service mesh
 
 本文根据官网的文档整理而成，步骤包括安装`istio 0.1.5`并创建一个bookinfo的微服务来测试istio的功能。
 
@@ -129,7 +129,7 @@ docker.io/istio/proxy_debug:0.1.5
 
 我们暂时不开启[Istio Auth](https://istio.io/docs/concepts/network-and-auth/auth.html)。
 
-> 本文中用到的所有yaml文件中的`type: LoadBalancer`去掉，使用默认的ClusterIP，然后配置Traefik ingress，就可以在集群外部访问。请参考[安装Traefik ingress](practice/traefik-ingress-installation.md)。
+> 本文中用到的所有yaml文件中的`type: LoadBalancer`去掉，使用默认的ClusterIP，然后配置Traefik ingress，就可以在集群外部访问。请参考[安装Traefik ingress](../practice/traefik-ingress-installation.md)。
 
 ```bash
 kubectl apply -f install/kubernetes/istio.yaml
@@ -237,6 +237,72 @@ kubectl create -f <(istioctl kube-inject -f samples/apps/bookinfo/bookinfo.yaml)
 
 多次刷新页面，你会发现有的页面上的评论里有星级打分，有的页面就没有，这是因为我们部署了三个版本的应用，有的应用里包含了评分，有的没有。Istio根据默认策略随机将流量分配到三个版本的应用上。
 
+查看部署的bookinfo应用中的`productpage-v1` service和deployment，查看`productpage-v1`的pod的详细json信息可以看到这样的结构：
+
+```bash
+$ kubectl get productpage-v1-944450470-bd530 -o json
+```
+
+见[productpage-v1-istio.json](../manifests/istio/productpage-v1-istio.json)文件。从详细输出中可以看到这个Pod中实际有两个容器，这里面包括了`initContainer`，作为istio植入到kubernetes deployment中的sidecar。
+
+```json
+"initContainers": [
+            {
+                "args": [
+                    "-p",
+                    "15001",
+                    "-u",
+                    "1337"
+                ],
+                "image": "docker.io/istio/init:0.1",
+                "imagePullPolicy": "Always",
+                "name": "init",
+                "resources": {},
+                "securityContext": {
+                    "capabilities": {
+                        "add": [
+                            "NET_ADMIN"
+                        ]
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "default-token-3l9f0",
+                        "readOnly": true
+                    }
+                ]
+            },
+            {
+                "args": [
+                    "-c",
+                    "sysctl -w kernel.core_pattern=/tmp/core.%e.%p.%t \u0026\u0026 ulimit -c unlimited"
+                ],
+                "command": [
+                    "/bin/sh"
+                ],
+                "image": "alpine",
+                "imagePullPolicy": "Always",
+                "name": "enable-core-dump",
+                "resources": {},
+                "securityContext": {
+                    "privileged": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "default-token-3l9f0",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+```
+
 ## 监控
 
 不断刷新productpage页面，将可以在以下几个监控中看到如下界面。
@@ -265,13 +331,13 @@ http://servicegraph.istio.io/dotviz
 
 可以用来查看服务间的依赖关系。
 
-访问http://servicegraph.istio.io/graph可以获得json格式的返回结果。
+访问 http://servicegraph.istio.io/graph 可以获得json格式的返回结果。
 
 ![ServiceGraph页面](../images/istio-servicegraph.jpg)
 
 ## 更进一步
 
-BookInfo示例中有三个版本的`reviews`，可以使用istio来配置路由请求，将流量分摊到不同版本的应用上。参考[Configuring Request Routing](https://istio.io/docs/tasks/request-routing.html)。
+BookInfo示例中有三个版本的`reviews`，可以使用istio来配置路由请求，将流量分发到不同版本的应用上。参考[Configuring Request Routing](https://istio.io/docs/tasks/request-routing.html)。
 
 还有一些更高级的功能，我们后续将进一步探索。
 

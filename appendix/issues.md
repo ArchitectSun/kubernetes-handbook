@@ -59,7 +59,7 @@ Error validating pod kube-keepalived-vip-1p62d_default(5d79ccc0-3173-11e7-bfbd-8
 ```
 ## 6.PVC中对Storage的容量设置不生效
 
-[使用glusterfs做持久化存储](17-使用glusterfs做持久化存储.md)文档中我们构建了PV和PVC，当时给`glusterfs-nginx`的PVC设置了8G的存储限额，`nginx-dm`这个Deployment使用了该PVC，进入该Deployment中的Pod执行测试：
+[使用glusterfs做持久化存储](../practice/using-glusterfs-for-persistent-storage.md)文档中我们构建了PV和PVC，当时给`glusterfs-nginx`的PVC设置了8G的存储限额，`nginx-dm`这个Deployment使用了该PVC，进入该Deployment中的Pod执行测试：
 
 ```
 dd if=/dev/zero of=test bs=1G count=10
@@ -69,8 +69,69 @@ dd if=/dev/zero of=test bs=1G count=10
 
 从截图中可以看到创建了9个size为1G的block后无法继续创建了，已经超出了8G的限额。
 
+## 7. 使用 Headless service 的时候 kubedns 解析不生效
+
+kubelet 的配置文件 `/etc/kubernetes/kubelet` 中的配置中将集群 DNS 的 domain name 配置成了  `––cluster-domain=cluster.local.`  ，虽然对于 service 的名字能够正常的完成 DNS 解析，但是对于 headless service 中的 pod 名字解析不了，查看 pod 的 `/etc/resolv.conf` 文件可以看到以下内容：
+
+```
+nameserver 10.0.254.2
+search default.svc.cluster.local. svc.cluster.local. cluster.local. tendcloud.com
+options ndots:5
+```
+
+修改 `/etc/kubernetes/kubelet` 文件中的  `––cluster-domain=cluster.local.`  将 local 后面的点去掉后重启所有的 kubelet，这样新创建的 pod 中的 `/etc/resolv.conf`文件的 DNS 配置和解析就正常了。
+
+## 8. kubernetes 集成 ceph 存储 rbd 命令组装问题
+
+kubernetes 使用 ceph 创建 PVC 的时候会有如下报错信息：
+
+```bash
+Events:
+  FirstSeen	LastSeen	Count	From				SubObjectPath	Type		Reason			Message
+  ---------	--------	-----	----				-------------	--------	------			-------
+  1h		12s		441	{persistentvolume-controller }			Warning		ProvisioningFailed	Failed to provision volume with StorageClass "ceph-web": failed to create rbd image: executable file not found in $PATH, command output:
+```
+
+检查 `kube-controller-manager` 的日志将看到如下错误信息：
+
+```
+Sep  4 15:25:36 bj-xg-oam-kubernetes-001 kube-controller-manager: W0904 15:25:36.032128   13211 rbd_util.go:364] failed to create rbd image, output
+Sep  4 15:25:36 bj-xg-oam-kubernetes-001 kube-controller-manager: W0904 15:25:36.032201   13211 rbd_util.go:364] failed to create rbd image, output
+Sep  4 15:25:36 bj-xg-oam-kubernetes-001 kube-controller-manager: W0904 15:25:36.032252   13211 rbd_util.go:364] failed to create rbd image, output
+Sep  4 15:25:36 bj-xg-oam-kubernetes-001 kube-controller-manager: E0904 15:25:36.032276   13211 rbd.go:317] rbd: create volume failed, err: failed to create rbd image: fork/exec /usr/bin/rbd: invalid argument, command output:
+```
+
+该问题尚未解决，参考 [Error creating rbd image: executable file not found in $PATH#38923](https://github.com/kubernetes/kubernetes/issues/38923)
+
+## 9. Helm: Error: no available release name found
+
+在开启了RBAC的kubernetes集群中，当使用helm部署应用，执行`helm install`的时候，会报着个错误：
+
+```
+Error: no available release name found
+Error: the server does not allow access to the requested resource (get configmaps)
+```
+
+这是因为我们使用的`2.3.1`版本的helm init的时候没有为tiller创建`serviceaccount`和`clusterrolebiding`的缘故导致的。
+
+```bash
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+# helm init -i sz-pg-oam-docker-hub-001.tendcloud.com/library/kubernetes-helm-tiller:v2.3.1
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+```
+
 **参考**
+
+- [Helm: Error: no available release name found - StackOverflow](https://stackoverflow.com/questions/43499971/helm-error-no-available-release-name-found)
+- [Helm 2.2.3 not working properly with kubeadm 1.6.1 default RBAC rules #2224](https://github.com/kubernetes/helm/issues/2224)
+
+
+
+## 参考
 
 [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
 [Resource Design Proposals](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/resources.md)
+
+[Helm: Error: no available release name found]()

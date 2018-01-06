@@ -12,7 +12,7 @@ Kubelet使用readiness probe（就绪探针）来确定容器是否已经就绪�
 
 许多长时间运行的应用程序最终会转换到broken状态，除非重新启动，否则无法恢复。Kubernetes提供了liveness probe来检测和补救这种情况。
 
-在本次实验中，你将基于 `gcr.io/google_containers/busybox`镜像创建运行一个容器的Pod。以下是Pod的配置文件`exec-liveness.yaml`：
+在本次练习将基于 `gcr.io/google_containers/busybox`镜像创建运行一个容器的Pod。以下是Pod的配置文件`exec-liveness.yaml`：
 
 ```Yaml
 apiVersion: v1
@@ -174,6 +174,31 @@ kubectl describe pod liveness-http
 
 第三种liveness probe使用TCP Socket。 使用此配置，kubelet将尝试在指定端口上打开容器的套接字。 如果可以建立连接，容器被认为是健康的，如果不能就认为是失败的。
 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: goproxy
+  labels:
+    app: goproxy
+spec:
+  containers:
+  - name: goproxy
+    image: gcr.io/google_containers/goproxy:0.1
+    ports:
+    - containerPort: 8080
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+```
+
 如您所见，TCP检查的配置与HTTP检查非常相似。 此示例同时使用了readiness和liveness probe。 容器启动后5秒钟，kubelet将发送第一个readiness probe。 这将尝试连接到端口8080上的goproxy容器。如果探测成功，则该pod将被标记为就绪。Kubelet将每隔10秒钟执行一次该检查。
 
 除了readiness probe之外，该配置还包括liveness probe。 容器启动15秒后，kubelet将运行第一个liveness probe。 就像readiness probe一样，这将尝试连接到goproxy容器上的8080端口。如果liveness probe失败，容器将重新启动。
@@ -216,7 +241,7 @@ Readiness和livenss probe可以并行用于同一容器。 使用两者可以确
 
 ## 配置Probe
 
-Probe中有很多精确和详细的配置，通过它们你能准确的控制liveness和readiness检查：
+[Probe](https://kubernetes.io/docs/api-reference/v1.6/#probe-v1-core)中有很多精确和详细的配置，通过它们你能准确的控制liveness和readiness检查：
 
 - `initialDelaySeconds`：容器启动后第一次执行探测是需要等待多少秒。
 - `periodSeconds`：执行探测的频率。默认是10秒，最小1秒。
@@ -224,7 +249,7 @@ Probe中有很多精确和详细的配置，通过它们你能准确的控制liv
 - `successThreshold`：探测失败后，最少连续探测成功多少次才被认定为成功。默认是1。对于liveness必须是1。最小值是1。 
 - `failureThreshold`：探测成功后，最少连续探测失败多少次才被认定为失败。默认是3。最小值是1。
 
-HTTP probe中可以给 `httpGet`设置其他配置项：
+[HTTP probe](https://kubernetes.io/docs/api-reference/v1.6/#httpgetaction-v1-core)中可以给 `httpGet`设置其他配置项：
 
 - `host`：连接的主机名，默认连接到pod的IP。你可能想在http header中设置"Host"而不是使用IP。
 - `scheme`：连接使用的schema，默认HTTP。
@@ -234,3 +259,6 @@ HTTP probe中可以给 `httpGet`设置其他配置项：
 
 对于HTTP探测器，kubelet向指定的路径和端口发送HTTP请求以执行检查。 Kubelet将probe发送到容器的IP地址，除非地址被`httpGet`中的可选`host`字段覆盖。 在大多数情况下，你不想设置主机字段。 有一种情况下你可以设置它。 假设容器在127.0.0.1上侦听，并且Pod的`hostNetwork`字段为true。 然后，在`httpGet`下的`host`应该设置为127.0.0.1。 如果你的pod依赖于虚拟主机，这可能是更常见的情况，你不应该是用`host`，而是应该在`httpHeaders`中设置`Host`头。
 
+## 参考
+
+- 关于 [Container Probes](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes) 的更多信息
