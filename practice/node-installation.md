@@ -135,6 +135,8 @@ kubectl create clusterrolebinding kubelet-bootstrap \
 
 ### 下载最新的kubelet和kube-proxy二进制文件
 
+注意请下载对应的Kubernetes版本的安装包。
+
 ``` bash
 wget https://dl.k8s.io/v1.6.0/kubernetes-server-linux-amd64.tar.gz
 tar -xzvf kubernetes-server-linux-amd64.tar.gz
@@ -184,7 +186,7 @@ kubelet的配置文件`/etc/kubernetes/kubelet`。其中的IP地址更改为你�
 
 相对于kubenrete1.6的配置变动：
 
-- 对于kuberentes1.8集群中的kubelet配置，取消了`KUBELET_API_SERVER`的配置，而改用kubeconfig文件来定义master地址。
+- 对于kuberentes1.8集群中的kubelet配置，取消了`KUBELET_API_SERVER`的配置，而改用kubeconfig文件来定义master地址，所以请注释掉`KUBELET_API_SERVER`配置。
 
 ``` bash
 ###
@@ -200,6 +202,7 @@ KUBELET_ADDRESS="--address=172.20.0.113"
 KUBELET_HOSTNAME="--hostname-override=172.20.0.113"
 #
 ## location of the api-server
+## COMMENT THIS ON KUBERNETES 1.8+
 KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"
 #
 ## pod infrastructure container
