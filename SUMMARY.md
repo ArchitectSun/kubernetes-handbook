@@ -6,12 +6,17 @@
 
 ### 云原生
 
+- [Play with Kubernetes](cloud-native/play-with-kubernetes.md)
 - [Kubernetes与云原生应用概览](cloud-native/kubernetes-and-cloud-native-app-overview.md)
 - [云原生应用之路——从Kubernetes到Cloud Native](cloud-native/from-kubernetes-to-cloud-native.md)
 
 ### 概念与原理
 
 - [Kubernetes架构](concepts/index.md)
+  - [Etcd解析](concepts/etcd.md)
+  - [开放接口](concepts/open-interfaces.md)
+    - [CRI - Container Runtime Interface（容器运行时接口）](concepts/cri.md)
+    - [CNI - Container Network Interface（容器网络接口）](concepts/cni.md)
 - [设计理念](concepts/concepts.md)
 - [资源对象与基本概念解析](concepts/objects.md)
   - [Pod](concepts/pod-overview.md)	
@@ -48,6 +53,7 @@
   - [使用自定义资源扩展API](concepts/custom-resource.md)
   - [APIService](concepts/apiservice.md)
   - [Taint和Toleration（污点和容忍）](concepts/taint-and-toleration.md)
+  - [Pod中断与PDB（Pod中断预算）](concepts/pod-disruption-budget.md)
 
 ### 用户指南
 
@@ -70,7 +76,7 @@
   - [RBAC——基于角色的访问控制](guide/rbac.md)
   - [IP伪装代理](guide/ip-masq-agent.md)
   - [使用kubeconfig或token进行用户身份认证](guide/auth-with-kubeconfig-or-token.md)
-  - [ Kubernetes中的用户与身份认证授权](guide/authentication.md)
+  - [Kubernetes中的用户与身份认证授权](guide/authentication.md)
 - [访问Kubernetes集群](guide/access-kubernetes-cluster.md)
   - [访问集群](guide/access-cluster.md)
   - [使用kubeconfig文件配置跨集群认证](guide/authenticate-across-clusters-kubeconfig.md)
