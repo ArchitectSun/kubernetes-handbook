@@ -50,7 +50,7 @@ NAME                   CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
 kubernetes-dashboard   10.254.177.181   <nodes>       443:32324/TCP   49m
 ```
 
-访问集群中的任何一个节点，即可打开dashboard登陆页面，如https://172.20.0.113:32324/（请使用https访问），支持使用`kubeconfig`和`token`两种的认证方式：
+访问集群中的任何一个节点，即可打开dashboard登陆页面，如<https://172.20.0.113:32324/>（请使用https访问），支持使用`kubeconfig`和`token`两种的认证方式：
 
 ![登陆界面](../images/kubernetes-dashboard-1.7.1-login.jpg)
 
@@ -103,6 +103,8 @@ env:
 
 ### 生成 token
 
+> 注意：登陆dashboard的时候token值是必须的，而kubeconfig文件是kubectl命令所必须的，kubectl命令使用的kubeconfig文件中可以不包含token信息。
+
 需要创建一个admin用户并授予admin角色绑定，使用下面的yaml文件创建admin用户并赋予他管理员权限，然后可以通过token登陆dashbaord，该文件见[admin-role.yaml](https://github.com/rootsongjc/kubernetes-handbook/tree/master/manifests/dashboard-1.7.1/admin-role.yaml)。这种认证方式本质上是通过 Service Account 的身份认证加上 Bearer token 请求 API server 的方式实现，参考 [Kubernetes 中的认证](https://kubernetes.io/docs/admin/authentication/)。
 
 ```yaml
@@ -138,6 +140,16 @@ kubectl create -f admin-role.yaml
 ```
 
 创建完成后获取secret和token的值。
+
+运行下面的命令直接获取admin用户的token：
+
+```bash
+kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
+```
+
+**手动获取**
+
+也可以执行下面的步骤来获取token值：
 
 ```bash
 # 获取admin-token的secret名字
