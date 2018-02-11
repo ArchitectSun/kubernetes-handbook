@@ -20,6 +20,7 @@
     - [CNI - Container Network Interface（容器网络接口）](concepts/cni.md)
     - [CSI - Container Storage Interface（容器存储接口）](concepts/csi.md)
   - [Kubernetes中的网络解析——以flannel为例](concepts/networking.md)
+  - [Kubernetes中的网络解析——以calico为例](concepts/calico.md)
   - [资源对象与基本概念解析](concepts/objects.md)
     - [Pod状态与生命周期管理](concepts/pod-state-and-lifecycle.md)
     - [Pod概览](concepts/pod-overview.md)
@@ -187,6 +188,7 @@
 - [单元测试和集成测试](develop/testing.md)
 - [client-go示例](develop/client-go-sample.md)
 - [Operator](develop/operator.md)
+- [高级开发指南](develop/advance-developer.md)
 - [社区贡献](develop/contribute.md)
 - [Minikube](develop/minikube.md)
 
