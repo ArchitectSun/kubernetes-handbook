@@ -38,7 +38,7 @@ rules:
 
 下面示例中的`ClusterRole`定义可用于授予用户对某一特定命名空间，或者所有命名空间中的secret（取决于其[绑定](https://k8smeetup.github.io/docs/admin/authorization/rbac/#rolebinding-and-clusterrolebinding)方式）的读访问权限：
 
-```Yaml
+```yaml
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
@@ -56,7 +56,7 @@ rules:
 
 `RoleBinding`可以引用在同一命名空间内定义的`Role`对象。 下面示例中定义的`RoleBinding`对象在”default”命名空间中将”pod-reader”角色授予用户”jane”。 这一授权将允许用户”jane”从”default”命名空间中读取pod。
 
-```Yaml
+```yaml
 # 以下角色绑定定义将允许用户"jane"从"default"命名空间中读取pod。
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -158,7 +158,7 @@ rules:
 
 允许读取core API Group中定义的资源”pods”：
 
-```Yaml
+```yaml
 rules:
 - apiGroups: [""]
   resources: ["pods"]
@@ -506,7 +506,7 @@ subjects:
      --namespace=my-namespace
    ```
 
-   目前，许多[加载项（addon）]（/ docs / concepts / cluster-administration / addons /）作为”kube-system”命名空间中的”default”服务帐户运行。 要允许这些加载项使用超级用户访问权限，请将cluster-admin权限授予”kube-system”命名空间中的”default”服务帐户。 注意：启用上述操作意味着”kube-system”命名空间将包含允许超级用户访问API的秘钥。
+   目前，许多[加载项（addon）](https://kubernetes.io/docs/concepts/cluster-administration/addons/)作为”kube-system”命名空间中的”default”服务帐户运行。 要允许这些加载项使用超级用户访问权限，请将cluster-admin权限授予”kube-system”命名空间中的”default”服务帐户。 注意：启用上述操作意味着”kube-system”命名空间将包含允许超级用户访问API的秘钥。
 
    ```bash
    kubectl create clusterrolebinding add-on-cluster-admin \
@@ -565,7 +565,6 @@ subjects:
 
 ```
 --authorization-mode=RBAC,ABAC --authorization-policy-file=mypolicy.jsonl
-
 ```
 
 RBAC授权器将尝试首先授权请求。如果RBAC授权器拒绝API请求，则ABAC授权器将被运行。这意味着RBAC策略*或者*ABAC策略所允许的任何请求都是可通过的。

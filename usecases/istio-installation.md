@@ -18,7 +18,7 @@
 
 下载Linux版本的当前最新版安装包
 
-```Shell
+```bash
 wget https://github.com/istio/istio/releases/download/0.1.5/istio-0.1.5-linux.tar.gz
 ```
 
@@ -164,7 +164,7 @@ kubectl apply -f install/kubernetes/addons/zipkin.yaml
 
 在traefik ingress中增加增加以上几个服务的配置，同时增加istio-ingress配置。
 
-```Yaml
+```yaml
     - host: grafana.istio.io
       http:
         paths:

@@ -60,7 +60,7 @@ gitbook pdf . ./kubernetes-handbook.pdf
 
 使用`pandoc`和`latex`来生成pdf格式文档。
 
-```shell
+```bash
 pandoc --latex-engine=xelatex --template=pm-template input.md -o output.pdf
 ```
 
@@ -93,9 +93,21 @@ pandoc --latex-engine=xelatex --template=pm-template input.md -o output.pdf
 
 ## 关于
 
+感谢以下所有的贡献者！
+
 [贡献者列表](https://github.com/rootsongjc/kubernetes-handbook/graphs/contributors)
 
-## 加入K8S🤘Cloud Native实战群
+## Stargazers over time
 
-- 微信群：扫描二维码，[Jimmy Song](http://jimmysong.io/about)，或直接搜索微信号**jimmysong**后拉您入群，请增加备注。
-- Slack：全球中文用户可以加入[Kubernetes官方Slack](http://slack.k8s.io)中文频道**cn-users channel**
+[![Stargazers over time](https://starcharts.herokuapp.com/rootsongjc/kubernetes-handbook.svg)](https://starcharts.herokuapp.com/rootsongjc/kubernetes-handbook)
+
+## 社区&读者交流
+
+- **微信群**：K8S&Cloud Native实战，扫描我的微信二维码，[Jimmy Song](http://jimmysong.io/about)，或直接搜索微信号*jimmysong*后拉您入群，请增加备注（姓名-公司/学校/博客/社区/研究所/机构等）。
+- **Slack**：全球中文用户可以加入[Kubernetes官方Slack](http://slack.k8s.io)中文频道**cn-users channel**
+- **知乎专栏**：[云原生应用架构](https://zhuanlan.zhihu.com/cloud-native)
+- **微信公众号**：扫描下面的二维码关注微信公众号CloudNativeGo（云原生应用架构）
+
+<p align="center">
+  <img src="https://github.com/rootsongjc/kubernetes-handbook/blob/master/images/cloud-native-go-wechat-qr-code.jpg?raw=true" alt="CloudNativeGo微信公众号二维码"/>
+</p>

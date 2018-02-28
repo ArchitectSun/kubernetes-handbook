@@ -41,10 +41,10 @@ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admi
 然后安装helm服务端tiller
 
 ```bash
-helm init -i sz-pg-oam-docker-hub-001.tendcloud.com/library/kubernetes-helm-tiller:v2.3.1
+helm init -i jimmysong/kubernetes-helm-tiller:v2.3.1
 ```
 
-我们使用`-i`指定自己的镜像，因为官方的镜像因为某些原因无法拉取。
+我们使用`-i`指定自己的镜像，因为官方的镜像因为某些原因无法拉取，官方镜像地址是：`gcr.io/kubernetes-helm/tiller:v2.3.1`，我在DockerHub上放了一个备份`jimmysong/kubernetes-helm-tiller:v2.3.1`，该镜像的版本与helm客户端的版本相同，使用`helm version`可查看helm客户端版本。
 
 为应用程序设置`serviceAccount`：
 
@@ -117,14 +117,14 @@ spec:
             path: /
             port: {{ .Values.service.internalPort }}
         resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toyaml .Values.resources | indent 12 }}
 ```
 
 这是该应用的Deployment的yaml配置文件，其中的双大括号包扩起来的部分是Go template，其中的Values是在`values.yaml`文件中定义的：
 
-```Yaml
+```yaml
 # Default values for mychart.
-# This is a YAML-formatted file.
+# This is a yaml-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
@@ -634,4 +634,4 @@ helm package .
 - [Go template](https://golang.org/pkg/text/template/)
 - [Helm docs](https://github.com/kubernetes/helm/blob/master/docs/index.md)
 - [How To Create Your First Helm Chart](https://docs.bitnami.com/kubernetes/how-to/create-your-first-helm-chart/)
-- [Speed deployment on Kubernetes with Helm Chart – Quick YAML example from scratch](https://www.ibm.com/blogs/bluemix/2017/10/quick-example-helm-chart-for-kubernetes/)
+- [Speed deployment on Kubernetes with Helm Chart – Quick yaml example from scratch](https://www.ibm.com/blogs/bluemix/2017/10/quick-example-helm-chart-for-kubernetes/)
