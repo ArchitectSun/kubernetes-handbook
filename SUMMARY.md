@@ -174,6 +174,7 @@
     - [配置请求的路由规则](usecases/configuring-request-routing.md)
     - [安装和拓展Istio service mesh](usecases/install-and-expand-istio-mesh.md)
     - [集成虚拟机](usecases/integrating-vms.md)
+    - [Istio中sidecar的注入规范及示例](usecases/sidecar-spec-in-istio.md)
   - [Linkerd](usecases/linkerd.md)
     - [Linkerd 使用指南](usecases/linkerd-user-guide.md)
   - [Conduit](usecases/conduit.md)
@@ -213,6 +214,7 @@
   - [Kubernetes1.7更新日志](appendix/kubernetes-1.7-changelog.md)
   - [Kubernetes1.8更新日志](appendix/kubernetes-1.8-changelog.md)
   - [Kubernetes1.9更新日志](appendix/kubernetes-1.9-changelog.md)
+  - [Kubernetes1.10更新日志](appendix/kubernetes-1.10-changelog.md)
 - [Kubernetes及云原生年度总结及展望](appendix/summary-and-outlook.md)
   - [Kubernetes与云原生2017年年终总结及2018年展望](appendix/kubernetes-and-cloud-native-summary-in-2017-and-outlook-for-2018.md)
 
