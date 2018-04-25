@@ -70,6 +70,7 @@
   - [使用自定义资源扩展API](concepts/custom-resource.md)
   - [Aggregated API Server](concepts/aggregated-api-server.md)
   - [APIService](concepts/apiservice.md)
+  - [Service Catalog](concepts/service-catalog.md)
 - [资源调度](concepts/scheduling.md)
 
 ### 用户指南
@@ -192,6 +193,7 @@
     - [Condiut概览](usecases/conduit-overview.md)
     - [安装Conduit](usecases/conduit-installation.md)
   - [Envoy](usecases/envoy.md)
+    - [Envoy中的基本术语](usecases/envoy-terminology.md)
     - [Envoy作为前端代理](usecases/envoy-front-proxy.md)
 - [大数据](usecases/big-data.md)
   - [Spark standalone on Kubernetes](usecases/spark-standalone-on-kubernetes.md)
