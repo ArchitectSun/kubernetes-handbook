@@ -10,6 +10,7 @@
 - [Play with Kubernetes](cloud-native/play-with-kubernetes.md)
 - [Kubernetes与云原生应用概览](cloud-native/kubernetes-and-cloud-native-app-overview.md)
 - [云原生应用之路——从Kubernetes到Cloud Native](cloud-native/from-kubernetes-to-cloud-native.md)
+- [云原生编程语言Ballerina](cloud-native/cloud-native-programming-language-ballerina.md)
 
 ### 概念与原理
 
@@ -94,6 +95,7 @@
   - [IP伪装代理](guide/ip-masq-agent.md)
   - [使用kubeconfig或token进行用户身份认证](guide/auth-with-kubeconfig-or-token.md)
   - [Kubernetes中的用户与身份认证授权](guide/authentication.md)
+  - [Kubernetes集群安全性配置最佳实践](guide/kubernetes-security-best-practice.md)
 - [访问Kubernetes集群](guide/access-kubernetes-cluster.md)
   - [访问集群](guide/access-cluster.md)
   - [使用kubeconfig文件配置跨集群认证](guide/authenticate-across-clusters-kubeconfig.md)
@@ -235,3 +237,5 @@
   - [Kubernetes1.10更新日志](appendix/kubernetes-1.10-changelog.md)
 - [Kubernetes及云原生年度总结及展望](appendix/summary-and-outlook.md)
   - [Kubernetes与云原生2017年年终总结及2018年展望](appendix/kubernetes-and-cloud-native-summary-in-2017-and-outlook-for-2018.md)
+- [Kubernetes认证服务提供商（KCSP）说明](appendix/about-kcsp.md)
+- [认证Kubernetes管理员（CKA）说明](appendix/about-cka-candidate.md)
