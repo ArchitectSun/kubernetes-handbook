@@ -325,11 +325,12 @@ Kubernetes是一个多租户的云平台，因此必须对用户的权限加以�
 步骤说明：
 
 1. 将原有应用拆解为服务
-2. 容器化、制作镜像
-3. 准备应用配置文件
-4. 准备Kubernetes YAML文件
-5. 编写bootstarp脚本
-6. 创建ConfigMaps
+2.  定义服务的接口/API通信方式
+3.  编写启动脚本作为容器的进程入口
+4.  准备应用配置文件
+5.  容器化、制作镜像
+6.  准备Kubernetes YAML文件
+7.  如果有外置配置文件需要创建ConfigMap或Secret存储
 
 详见：[迁移传统应用到Kubernetes步骤详解——以Hadoop YARN为例](https://jimmysong.io/posts/migrating-hadoop-yarn-to-kubernetes/)。
 
@@ -359,7 +360,7 @@ Service Mesh现在一般被翻译作服务网格，目前主流的Service Mesh�
 * [微服务管理框架Service Mesh——Linkerd安装试用笔记](https://jimmysong.io/posts/linkerd-user-guide/)
 * [微服务管理框架Service Mesh——Istio安装试用笔记](https://jimmysong.io/posts/istio-installation/)
 
-更多关于 Service Mesh 的内容请访问 [Service Mesh 中文网](http://www.servicemesh.cn)。
+更多关于 Service Mesh 的内容请访问 [ServiceMesher 社区网站](http://www.servicemesher.com)。
 
 ## 使用案例
 
