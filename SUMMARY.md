@@ -58,6 +58,7 @@
   * [CronJob](concepts/cronjob.md)
   * [Horizontal Pod Autoscaling](concepts/horizontal-pod-autoscaling.md)
     * [自定义指标HPA](concepts/custom-metrics-hpa.md)
+  * [准入控制器（Admission Controller）](concepts/admission-controller.md)
 * [服务发现](concepts/service-discovery.md)
   * [Service](concepts/service.md)
   * [Ingress](concepts/ingress.md)
@@ -80,6 +81,7 @@
   * [APIService](concepts/apiservice.md)
   * [Service Catalog](concepts/service-catalog.md)
 * [资源调度](concepts/scheduling.md)
+  * [QoS（服务质量等级）](concepts/qos.md)
 
 ## 用户指南
 
@@ -90,7 +92,7 @@
   * [Secret配置](guide/secret-configuration.md)
   * [管理namespace中的资源配额](guide/resource-quota-management.md)
 * [命令使用](guide/command-usage.md)
-  * [docker用户过度到kubectl命令行指南](guide/docker-cli-to-kubectl.md)
+  * [Docker用户过度到kubectl命令行指南](guide/docker-cli-to-kubectl.md)
   * [kubectl命令概览](guide/using-kubectl.md)
   * [kubectl命令技巧大全](guide/kubectl-cheatsheet.md)
   * [使用etcdctl访问kubernetes数据](guide/using-etcdctl-to-access-kubernetes-data.md)
@@ -155,7 +157,7 @@
 * [存储管理](practice/storage.md)
   * [GlusterFS](practice/glusterfs.md)
     * [使用GlusterFS做持久化存储](practice/using-glusterfs-for-persistent-storage.md)
-    * [使用Heketi作为kubernetes的持久存储GlusterFS的external provisioner](practice/using-heketi-gluster-for-persistent-storage.md)
+    * [使用Heketi作为Kubernetes的持久存储GlusterFS的external provisioner](practice/using-heketi-gluster-for-persistent-storage.md)
     * [在OpenShift中使用GlusterFS做持久化存储](practice/storage-for-containers-using-glusterfs-with-openshift.md)
   * [GlusterD-2.0](practice/glusterd-2.0.md)
   * [Ceph](practice/ceph.md)
@@ -173,7 +175,7 @@
     * [使用Prometheus监控kubernetes集群](practice/using-prometheus-to-monitor-kuberentes-cluster.md)
   * [使用Vistio监控Istio服务网格中的流量](practice/vistio-visualize-your-istio-mesh.md)
 * [服务编排管理](practice/services-management-tool.md)
-  * [使用Helm管理kubernetes应用](practice/helm.md)
+  * [使用Helm管理Kubernetes应用](practice/helm.md)
   * [构建私有Chart仓库](practice/create-private-charts-repo.md)
 * [持续集成与发布](practice/ci-cd.md)
   * [使用Jenkins进行持续集成与发布](practice/jenkins-ci-cd.md)
