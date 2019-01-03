@@ -6,7 +6,7 @@
 
 ## 云原生
 
-* [云原生的定义](cloud-native/cloud-native-definition.md)
+* [云原生（Cloud Native）的定义](cloud-native/cloud-native-definition.md)
 * [CNCF - 云原生计算基金会简介](cloud-native/cncf.md)
 * [CNCF章程](cloud-native/cncf-charter.md)
 * [云原生的设计哲学](cloud-native/cloud-native-philosophy.md)
@@ -214,7 +214,8 @@
     * [如何参与Istio社区及注意事项](usecases/istio-community-tips.md)
     * [Istio教程](usecases/istio-tutorial.md)
     * [Istio免费学习资源汇总](usecases/istio-tutorials-collection.md)
-    * [深入理解Istio中的Sidecar注入与流量劫持](usecases/understand-sidecar-injection-and-traffic-hijack-in-istio-service-mesh.md)
+    * [深入理解Istio Service Mesh中的Envoy Sidecar注入与流量劫持](usecases/understand-sidecar-injection-and-traffic-hijack-in-istio-service-mesh.md)
+    * [深入理解Istio Service Mesh中的Envoy Sidecar代理的路由转发](usecases/envoy-sidecar-routing-of-istio-service-mesh-deep-dive.md)
   * [Linkerd](usecases/linkerd.md)
     * [Linkerd 使用指南](usecases/linkerd-user-guide.md)
   * [Conduit](usecases/conduit.md)
