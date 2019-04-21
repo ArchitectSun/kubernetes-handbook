@@ -7,8 +7,6 @@
 ## 云原生
 
 * [云原生（Cloud Native）的定义](cloud-native/cloud-native-definition.md)
-* [CNCF - 云原生计算基金会简介](cloud-native/cncf.md)
-* [CNCF章程](cloud-native/cncf-charter.md)
 * [云原生的设计哲学](cloud-native/cloud-native-philosophy.md)
 * [Play with Kubernetes](cloud-native/play-with-kubernetes.md)
 * [快速部署一个云原生本地实验环境](cloud-native/cloud-native-local-quick-start.md)
@@ -254,6 +252,14 @@
 * [社区贡献](develop/contribute.md)
 * [Minikube](develop/minikube.md)
 
+## CNCF（云原生计算基金会）
+
+* [CNCF - 云原生计算基金会简介](cloud-native/cncf.md)
+* [CNCF章程](cloud-native/cncf-charter.md)
+* [CNCF特别兴趣小组（SIG）说明](cloud-native/cncf-sig.md)
+* [开源项目加入CNCF Sandbox的要求](cloud-native/cncf-sandbox-criteria.md)
+* [CNCF中的项目治理](cloud-native/cncf-project-governing.md)
+
 ## 附录
 
 * [附录说明](appendix/index.md)
@@ -270,6 +276,7 @@
   * [Kubernetes1.11更新日志](appendix/kubernetes-1.11-changelog.md)
   * [Kubernetes1.12更新日志](appendix/kubernetes-1.12-changelog.md)
   * [Kubernetes1.13更新日志](appendix/kubernetes-1.13-changelog.md)
+  * [Kubernetes1.14更新日志](appendix/kubernetes-1.14-changelog.md)
 * [Kubernetes及云原生年度总结及展望](appendix/summary-and-outlook.md)
   * [Kubernetes与云原生2017年年终总结及2018年展望](appendix/kubernetes-and-cloud-native-summary-in-2017-and-outlook-for-2018.md)
   * [Kubernetes与云原生2018年年中总结及2019年展望](appendix/kubernetes-and-cloud-native-summary-in-2018-and-outlook-for-2019.md)
